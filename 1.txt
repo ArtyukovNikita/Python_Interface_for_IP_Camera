@@ -1,0 +1,175 @@
+import pigpio
+import tkinter as tk
+
+# --------------------------
+# GPIO-пины для 4 моторов/ESC
+# --------------------------
+MOTOR1_PIN = 17
+MOTOR2_PIN = 27
+MOTOR3_PIN = 22
+MOTOR4_PIN = 23
+
+# Подключаемся к демону pigpio
+pi = pigpio.pi()
+if not pi.connected:
+    print("Не удалось подключиться к pigpio. Убедитесь, что pigpiod запущен.")
+    exit()
+
+pi.set_servo_pulsewidth(MOTOR1_PIN, 0)
+pi.set_servo_pulsewidth(MOTOR2_PIN, 0)
+pi.set_servo_pulsewidth(MOTOR3_PIN, 0)
+pi.set_servo_pulsewidth(MOTOR4_PIN, 0)
+
+
+motor1_on = False
+motor2_on = False
+motor3_on = False
+motor4_on = False
+
+motor1_pulse = 1500
+motor2_pulse = 1500
+motor3_pulse = 1500
+motor4_pulse = 1500
+
+
+def toggle_motor1():
+    global motor1_on, motor1_pulse
+    motor1_on = not motor1_on
+    if motor1_on:
+        pi.set_servo_pulsewidth(MOTOR1_PIN, motor1_pulse)
+        btn_motor1.config(text="Выключить мотор 1")
+    else:
+        pi.set_servo_pulsewidth(MOTOR1_PIN, 0)
+        btn_motor1.config(text="Включить мотор 1")
+
+def toggle_motor2():
+    global motor2_on, motor2_pulse
+    motor2_on = not motor2_on
+    if motor2_on:
+        pi.set_servo_pulsewidth(MOTOR2_PIN, motor2_pulse)
+        btn_motor2.config(text="Выключить мотор 2")
+    else:
+        pi.set_servo_pulsewidth(MOTOR2_PIN, 0)
+        btn_motor2.config(text="Включить мотор 2")
+
+def toggle_motor3():
+    global motor3_on, motor3_pulse
+    motor3_on = not motor3_on
+    if motor3_on:
+        pi.set_servo_pulsewidth(MOTOR3_PIN, motor3_pulse)
+        btn_motor3.config(text="Выключить мотор 3")
+    else:
+        pi.set_servo_pulsewidth(MOTOR3_PIN, 0)
+        btn_motor3.config(text="Включить мотор 3")
+
+def toggle_motor4():
+    global motor4_on, motor4_pulse
+    motor4_on = not motor4_on
+    if motor4_on:
+        pi.set_servo_pulsewidth(MOTOR4_PIN, motor4_pulse)
+        btn_motor4.config(text="Выключить мотор 4")
+    else:
+        pi.set_servo_pulsewidth(MOTOR4_PIN, 0)
+        btn_motor4.config(text="Включить мотор 4")
+
+
+def set_motor1_speed(value):
+    global motor1_pulse
+    motor1_pulse = int(float(value))
+    if motor1_on:
+        pi.set_servo_pulsewidth(MOTOR1_PIN, motor1_pulse)
+
+def set_motor2_speed(value):
+    global motor2_pulse
+    motor2_pulse = int(float(value))
+    if motor2_on:
+        pi.set_servo_pulsewidth(MOTOR2_PIN, motor2_pulse)
+
+def set_motor3_speed(value):
+    global motor3_pulse
+    motor3_pulse = int(float(value))
+    if motor3_on:
+        pi.set_servo_pulsewidth(MOTOR3_PIN, motor3_pulse)
+
+def set_motor4_speed(value):
+    global motor4_pulse
+    motor4_pulse = int(float(value))
+    if motor4_on:
+        pi.set_servo_pulsewidth(MOTOR4_PIN, motor4_pulse)
+
+
+def on_close():
+ 
+    pi.set_servo_pulsewidth(MOTOR1_PIN, 0)
+    pi.set_servo_pulsewidth(MOTOR2_PIN, 0)
+    pi.set_servo_pulsewidth(MOTOR3_PIN, 0)
+    pi.set_servo_pulsewidth(MOTOR4_PIN, 0)
+    pi.stop()
+    root.destroy()
+
+
+root = tk.Tk()
+root.title("Управление четырьмя моторами (PPM/PWM)")
+
+# Кнопки включения/выключения (две строки по две кнопки)
+btn_motor1 = tk.Button(root, text="Включить мотор 1", width=20, command=toggle_motor1)
+btn_motor1.grid(row=0, column=0, padx=10, pady=10)
+
+btn_motor2 = tk.Button(root, text="Включить мотор 2", width=20, command=toggle_motor2)
+btn_motor2.grid(row=0, column=1, padx=10, pady=10)
+
+btn_motor3 = tk.Button(root, text="Включить мотор 3", width=20, command=toggle_motor3)
+btn_motor3.grid(row=0, column=2, padx=10, pady=10)
+
+btn_motor4 = tk.Button(root, text="Включить мотор 4", width=20, command=toggle_motor4)
+btn_motor4.grid(row=0, column=3, padx=10, pady=10)
+
+
+scale_motor1 = tk.Scale(
+    root,
+    from_=1000, to=2000,
+    orient=tk.HORIZONTAL,
+    length=200,
+    label="Мотор 1 (мкс)",
+    command=set_motor1_speed
+)
+scale_motor1.set(1500)
+scale_motor1.grid(row=1, column=0, padx=10, pady=10)
+
+scale_motor2 = tk.Scale(
+    root,
+    from_=1000, to=2000,
+    orient=tk.HORIZONTAL,
+    length=200,
+    label="Мотор 2 (мкс)",
+    command=set_motor2_speed
+)
+scale_motor2.set(1500)
+scale_motor2.grid(row=1, column=1, padx=10, pady=10)
+
+scale_motor3 = tk.Scale(
+    root,
+    from_=1000, to=2000,
+    orient=tk.HORIZONTAL,
+    length=200,
+    label="Мотор 3 (мкс)",
+    command=set_motor3_speed
+)
+scale_motor3.set(1500)
+scale_motor3.grid(row=1, column=2, padx=10, pady=10)
+
+scale_motor4 = tk.Scale(
+    root,
+    from_=1000, to=2000,
+    orient=tk.HORIZONTAL,
+    length=200,
+    label="Мотор 4 (мкс)",
+    command=set_motor4_speed
+)
+scale_motor4.set(1500)
+scale_motor4.grid(row=1, column=3, padx=10, pady=10)
+
+
+root.protocol("WM_DELETE_WINDOW", on_close)
+
+root.mainloop()
